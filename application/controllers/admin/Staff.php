@@ -189,19 +189,9 @@ class Staff extends AdminController
 
     public function delete()
     {
-        if (!is_admin() && is_admin($this->input->post('id'))) {
-            die('Busted, you can\'t delete administrators');
-        }
-
-        if (staff_can('delete',  'staff')) {
-            $success = $this->staff_model->delete($this->input->post('id'), $this->input->post('transfer_data_to'));
-            if ($success) {
-                set_alert('success', _l('deleted', _l('staff_member')));
-            }
-        }
-
-        redirect(admin_url('staff'));
+        access_denied('staff'); 
     }
+
 
     /* When staff edit his profile */
     public function edit_profile()

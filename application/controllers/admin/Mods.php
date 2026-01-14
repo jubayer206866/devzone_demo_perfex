@@ -24,22 +24,22 @@ class Mods extends AdminController
     }
 
     public function activate($name)
-    {
-        $this->app_modules->activate($name);
-        $this->to_modules();
-    }
+        {
+            set_alert('warning', 'Module activation is disabled.');
+            redirect(admin_url('modules'));
+        }
 
     public function deactivate($name)
     {
-        $this->app_modules->deactivate($name);
-        $this->to_modules();
+        set_alert('warning', 'Module deactivation is disabled.');
+        redirect(admin_url('modules'));
     }
-
     public function uninstall($name)
     {
-        $this->app_modules->uninstall($name);
-        $this->to_modules();
+        set_alert('warning', 'Module uninstall is disabled.');
+        redirect(admin_url('modules'));
     }
+
 
     public function upload()
     {
