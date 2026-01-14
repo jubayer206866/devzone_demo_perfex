@@ -1,0 +1,53 @@
+<?php
+
+# Version 1.0.0
+$lang['securelogin_guard'] = '登录安全';
+$lang['ip_whitelist'] = 'IP白名单';
+$lang['manage_ip_whitelist'] = '管理IP白名单';
+$lang['add_ip_address'] = '添加IP地址';
+$lang['edit_ip_address'] = '编辑IP地址';
+$lang['ip_address'] = 'IP地址';
+$lang['description'] = '描述';
+$lang['status'] = '状态';
+$lang['active'] = '激活';
+$lang['inactive'] = '未激活';
+$lang['date_created'] = '创建日期';
+$lang['date_modified'] = '修改日期';
+$lang['actions'] = '操作';
+$lang['enable_ip_whitelist'] = '启用IP白名单';
+$lang['disable_ip_whitelist'] = '禁用IP白名单';
+$lang['ip_whitelist_enabled'] = 'IP白名单已启用';
+$lang['ip_whitelist_disabled'] = 'IP白名单已禁用';
+$lang['ip_address_added_successfully'] = 'IP地址添加成功';
+$lang['ip_address_updated_successfully'] = 'IP地址更新成功';
+$lang['ip_address_deleted_successfully'] = 'IP地址删除成功';
+$lang['ip_address_status_updated'] = 'IP地址状态更新成功';
+$lang['error_adding_ip_address'] = '添加IP地址时出错';
+$lang['error_updating_ip_address'] = '更新IP地址时出错';
+$lang['error_deleting_ip_address'] = '删除IP地址时出错';
+$lang['invalid_ip_address'] = '无效的IP地址。请输入有效的IPv4或IPv6地址（支持CIDR表示法）';
+$lang['ip_address_already_exists'] = '此IP地址已存在于白名单中';
+$lang['securelogin_guard_ip_not_whitelisted'] = '您的IP地址不在白名单中。请联系管理员。';
+$lang['current_ip'] = '当前IP';
+$lang['add_current_ip'] = '添加当前IP';
+$lang['bypass_admin'] = '管理员绕过IP检查';
+$lang['no_ip_addresses'] = '白名单中没有IP地址';
+$lang['confirm_delete'] = '您确定要删除此IP地址吗？';
+$lang['settings'] = '设置';
+$lang['edit'] = '编辑';
+$lang['delete'] = '删除';
+$lang['enable'] = '启用';
+$lang['disable'] = '禁用';
+$lang['options'] = '选项';
+$lang['staff_member'] = '员工';
+$lang['all_staff'] = '所有员工';
+$lang['filter_by_staff'] = '按员工筛选';
+$lang['assign_to_staff'] = '分配给员工';
+$lang['ip_address_already_exists_for_staff'] = '此IP地址已存在于所选员工';
+$lang['update'] = '更新';
+$lang['save'] = '保存';
+$lang['for_staff'] = '员工';
+
+// Module-specific messages
+$lang['securelogin_guard_access_denied_contact_admin'] = '访问被拒绝。请联系管理员。';
+

@@ -1,0 +1,53 @@
+<?php
+
+# Version 1.0.0
+$lang['securelogin_guard'] = 'ログインセキュリティ';
+$lang['ip_whitelist'] = 'IPホワイトリスト';
+$lang['manage_ip_whitelist'] = 'IPホワイトリストの管理';
+$lang['add_ip_address'] = 'IPアドレスを追加';
+$lang['edit_ip_address'] = 'IPアドレスを編集';
+$lang['ip_address'] = 'IPアドレス';
+$lang['description'] = '説明';
+$lang['status'] = 'ステータス';
+$lang['active'] = '有効';
+$lang['inactive'] = '無効';
+$lang['date_created'] = '作成日';
+$lang['date_modified'] = '更新日';
+$lang['actions'] = '操作';
+$lang['enable_ip_whitelist'] = 'IPホワイトリストを有効化';
+$lang['disable_ip_whitelist'] = 'IPホワイトリストを無効化';
+$lang['ip_whitelist_enabled'] = 'IPホワイトリストが有効になりました';
+$lang['ip_whitelist_disabled'] = 'IPホワイトリストが無効になりました';
+$lang['ip_address_added_successfully'] = 'IPアドレスが正常に追加されました';
+$lang['ip_address_updated_successfully'] = 'IPアドレスが正常に更新されました';
+$lang['ip_address_deleted_successfully'] = 'IPアドレスが正常に削除されました';
+$lang['ip_address_status_updated'] = 'IPアドレスのステータスが正常に更新されました';
+$lang['error_adding_ip_address'] = 'IPアドレスの追加中にエラーが発生しました';
+$lang['error_updating_ip_address'] = 'IPアドレスの更新中にエラーが発生しました';
+$lang['error_deleting_ip_address'] = 'IPアドレスの削除中にエラーが発生しました';
+$lang['invalid_ip_address'] = '無効なIPアドレス。有効なIPv4またはIPv6アドレスを入力してください（CIDR表記をサポート）';
+$lang['ip_address_already_exists'] = 'このIPアドレスは既にホワイトリストに存在します';
+$lang['securelogin_guard_ip_not_whitelisted'] = 'あなたのIPアドレスはホワイトリストにありません。管理者に連絡してください。';
+$lang['current_ip'] = '現在のIP';
+$lang['add_current_ip'] = '現在のIPを追加';
+$lang['bypass_admin'] = '管理者のIPチェックをバイパス';
+$lang['no_ip_addresses'] = 'ホワイトリストにIPアドレスがありません';
+$lang['confirm_delete'] = 'このIPアドレスを削除してもよろしいですか？';
+$lang['settings'] = '設定';
+$lang['edit'] = '編集';
+$lang['delete'] = '削除';
+$lang['enable'] = '有効化';
+$lang['disable'] = '無効化';
+$lang['options'] = 'オプション';
+$lang['staff_member'] = 'スタッフメンバー';
+$lang['all_staff'] = 'すべてのスタッフ';
+$lang['filter_by_staff'] = 'スタッフでフィルタ';
+$lang['assign_to_staff'] = 'スタッフに割り当て';
+$lang['ip_address_already_exists_for_staff'] = 'このIPアドレスは既に選択されたスタッフメンバーに存在します';
+$lang['update'] = '更新';
+$lang['save'] = '保存';
+$lang['for_staff'] = 'スタッフ用';
+
+// Module-specific messages
+$lang['securelogin_guard_access_denied_contact_admin'] = 'アクセスが拒否されました。管理者に連絡してください。';
+

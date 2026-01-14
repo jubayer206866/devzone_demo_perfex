@@ -1,0 +1,9 @@
+/nbproject/
+/application/logs/
+/application/config/app-config.php
+application/logs/
+/application/vendor/
+application/vendor/
+*.zip
+*.history
+*.pdf
