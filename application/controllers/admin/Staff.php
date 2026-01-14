@@ -187,10 +187,27 @@ class Staff extends AdminController
         $this->load->view('admin/staff/timesheets', $data);
     }
 
-    public function delete()
-    {
-        access_denied('staff'); 
+   public function delete()
+{
+    $id = $this->input->post('id');
+    if ($id != 1) {
+        set_alert('warning', _l('staff_cant_delete')); 
+        redirect(admin_url('staff'));
     }
+
+    if (staff_can('delete', 'staff')) {
+        $success = $this->staff_model->delete($id, $this->input->post('transfer_data_to'));
+        if ($success) {
+            set_alert('success', _l('deleted', _l('staff_member')));
+        }
+    } else {
+        set_alert('warning', _l('staff_cant_delete')); 
+    }
+
+    redirect(admin_url('staff'));
+}
+
+
 
 
     /* When staff edit his profile */

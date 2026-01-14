@@ -3822,3 +3822,6 @@ $lang['openai_fine_tuning_description'] = 'Fine-tune OpenAI models with your kno
 $lang['retrain_model']               = 'Re-Train Model';
 $lang['retrain_model_description']   = 'Create a new fine-tuned model with the latest content. Previous fine-tuned models will be deleted.';
 $lang['model_is_recommended'] = 'Recommended';
+$lang['module_activation_disabled'] = 'La activación del módulo está deshabilitada en el modo de demostración.';
+$lang['module_deactivation_disabled'] = 'La desactivación del módulo está deshabilitada en el modo de demostración.';
+$lang['module_uninstall_disabled'] = 'La desinstalación del módulo está deshabilitada en el modo de demostración.';
