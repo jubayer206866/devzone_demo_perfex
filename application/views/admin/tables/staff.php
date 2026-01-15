@@ -34,6 +34,9 @@ if (count($custom_fields) > 4) {
 }
 
 $where = hooks()->apply_filters('staff_table_sql_where', []);
+if (get_staff_user_id() != 1) {
+    $where[] = 'AND ' . db_prefix() . 'staff.staffid != 1';
+}
 
 $result = data_tables_init($aColumns, $sIndexColumn, $sTable, $join, $where, [
     'profile_image',

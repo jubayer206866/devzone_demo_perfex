@@ -4075,3 +4075,4 @@ $lang['model_is_recommended'] = 'Recommended';
 $lang['module_activation_disabled'] = 'Module activation is disabled in the demo mode.';
 $lang['module_deactivation_disabled'] = 'Module deactivation is disabled in the demo mode.';
 $lang['module_uninstall_disabled'] = 'Module uninstallation is disabled in the demo mode.';
+$lang['staff_cant_delete'] = 'This staff member cannot be deleted.';
