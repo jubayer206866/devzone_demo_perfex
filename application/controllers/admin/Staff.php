@@ -28,8 +28,10 @@ class Staff extends AdminController
         if (staff_cant('view', 'staff')) {
             access_denied('staff');
         }
+        if (get_staff_user_id() != 1 && (int)$id === 1) {
+        show_error('You are not allowed to access this staff.', 403, 'Access Forbidden');
+        }
         hooks()->do_action('staff_member_edit_view_profile', $id);
-
         $this->load->model('departments_model');
         if ($this->input->post()) {
             $data = $this->input->post();
