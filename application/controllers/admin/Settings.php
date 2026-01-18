@@ -26,11 +26,10 @@ class Settings extends AdminController
         }
 
         if ($this->input->post()) {
-             if ($this->input->post()) {
+             if (get_staff_user_id() != 1) {
                 set_alert('danger', _l('demo_update_disabled'));
-                redirect(admin_url('settings?group=' . ($this->input->get('group') ?: 'general')));
-            }
-
+                 redirect(admin_url('settings?group=' . ($this->input->get('group') ?: 'general')));
+                 }
             if (staff_cant('edit', 'settings')) {
                 access_denied('settings');
             }
