@@ -4076,3 +4076,5 @@ $lang['module_activation_disabled'] = 'Module activation is disabled in the demo
 $lang['module_deactivation_disabled'] = 'Module deactivation is disabled in the demo mode.';
 $lang['module_uninstall_disabled'] = 'Module uninstallation is disabled in the demo mode.';
 $lang['staff_cant_delete'] = 'This staff member cannot be deleted.';
+$lang['demo_update_disabled'] = 'Update function is restricted in demo mode.';
+
