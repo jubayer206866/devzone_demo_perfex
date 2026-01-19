@@ -14,8 +14,8 @@ jobs:
       - name: Get latest code
         uses: actions/checkout@v3
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy via SFTP
+        uses: appleboy/scp-action@v0.1.5
         with:
           server: devzonebd.com
           username: github_ftp@perfex.devzonebd.com
@@ -25,8 +25,8 @@ jobs:
           port: 22
           passive: false
 
-          local-dir: ./
-          server-dir: /
+          local-dir: "./"
+          server-dir: "/"
 
           timeout: 180000
           dangerous-clean-slate: false
