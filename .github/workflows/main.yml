@@ -19,7 +19,7 @@ jobs:
         with:
           server: devzonebd.com
           username: github_ftp@perfex.devzonebd.com
-          password: ${{ secrets.FTP_PASSWORD }}
+          password: ${{ secrets.NEW_PASSWORD }}
 
           protocol: ftp
           port: 21
