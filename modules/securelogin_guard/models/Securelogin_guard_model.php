@@ -8,67 +8,68 @@ class Securelogin_guard_model extends App_Model
     {
         parent::__construct();
         $this->table = db_prefix() . 'securelogin_guard_whitelist';
+        $this->staff_table = db_prefix() . 'securelogin_guard_whitelist_staffs';
     }
 
     /**
-     * Get all whitelisted IPs with filters
+     * Get all whitelisted IPs with their assigned staff
      */
     public function get_all($filters = [])
     {
         // Filter by status (is_active)
         if (isset($filters['status']) && !empty($filters['status'])) {
             if (is_array($filters['status'])) {
-                $this->db->where_in('is_active', $filters['status']);
+                $this->db->where_in('w.is_active', $filters['status']);
             } else {
-                $this->db->where('is_active', $filters['status']);
+                $this->db->where('w.is_active', $filters['status']);
             }
         }
         
         // Filter by IP addresses
         if (isset($filters['ip_addresses']) && !empty($filters['ip_addresses'])) {
             if (is_array($filters['ip_addresses'])) {
-                $this->db->where_in('ip_address', $filters['ip_addresses']);
+                $this->db->where_in('w.ip_address', $filters['ip_addresses']);
             } else {
-                $this->db->where('ip_address', $filters['ip_addresses']);
+                $this->db->where('w.ip_address', $filters['ip_addresses']);
             }
         }
         
-        // Filter by staff IDs
+        // Filter by staff IDs (check in staff assignments table)
         if (isset($filters['staff_ids']) && !empty($filters['staff_ids'])) {
             if (is_array($filters['staff_ids'])) {
-                $has_all_staff = in_array('', $filters['staff_ids']) || in_array(null, $filters['staff_ids']);
                 $staff_ids = array_filter($filters['staff_ids'], function($id) {
                     return $id !== '' && $id !== null;
                 });
-                
-                if ($has_all_staff && !empty($staff_ids)) {
-                    // Include both NULL staff_id (all staff) and specific staff IDs
-                    $this->db->group_start();
-                    $this->db->where('staff_id IS NULL', null, false);
-                    $this->db->or_where_in('staff_id', $staff_ids);
-                    $this->db->group_end();
-                } elseif ($has_all_staff) {
-                    // Only NULL staff_id (all staff)
-                    $this->db->where('staff_id IS NULL', null, false);
-                } else {
-                    // Only specific staff IDs
-                    $this->db->where_in('staff_id', $staff_ids);
+                if (!empty($staff_ids)) {
+                    $this->db->where_in('ws.staff_id', $staff_ids);
                 }
             } else {
-                // Single staff_id (backward compatibility)
-                if ($filters['staff_ids'] === '' || $filters['staff_ids'] === null) {
-                    $this->db->where('staff_id IS NULL', null, false);
-                } else {
-                    $this->db->where('staff_id', $filters['staff_ids']);
-                }
+                $this->db->where('ws.staff_id', $filters['staff_ids']);
             }
         } elseif (isset($filters['staff_id']) && $filters['staff_id'] !== null) {
-            // Backward compatibility - single staff_id
-            $this->db->where('staff_id', $filters['staff_id']);
+            $this->db->where('ws.staff_id', $filters['staff_id']);
         }
         
-        $this->db->order_by('date_created', 'DESC');
-        return $this->db->get($this->table)->result();
+        // Join with staff assignments table
+        $this->db->select('w.*, GROUP_CONCAT(ws.staff_id) as assigned_staff_ids');
+        $this->db->from($this->table . ' w');
+        $this->db->join($this->staff_table . ' ws', 'w.id = ws.whitelist_id', 'left');
+        $this->db->group_by('w.id');
+        $this->db->order_by('w.date_created', 'DESC');
+        
+        $results = $this->db->get()->result();
+        
+        // Process results to add staff array
+        foreach ($results as $result) {
+            if (!empty($result->assigned_staff_ids) && $result->assigned_staff_ids !== null) {
+                $result->assigned_staff = array_map('intval', explode(',', $result->assigned_staff_ids));
+            } else {
+                $result->assigned_staff = [];
+            }
+            unset($result->assigned_staff_ids);
+        }
+        
+        return $results;
     }
 
     /**
@@ -83,12 +84,28 @@ class Securelogin_guard_model extends App_Model
     }
 
     /**
-     * Get single IP record
+     * Get single IP record with assigned staff
      */
     public function get($id)
     {
-        $this->db->where('id', $id);
-        return $this->db->get($this->table)->row();
+        $this->db->where('w.id', $id);
+        $this->db->select('w.*, GROUP_CONCAT(ws.staff_id) as assigned_staff_ids');
+        $this->db->from($this->table . ' w');
+        $this->db->join($this->staff_table . ' ws', 'w.id = ws.whitelist_id', 'left');
+        $this->db->group_by('w.id');
+        
+        $result = $this->db->get()->row();
+        
+        if ($result) {
+            if (!empty($result->assigned_staff_ids) && $result->assigned_staff_ids !== null) {
+                $result->assigned_staff = array_map('intval', explode(',', $result->assigned_staff_ids));
+            } else {
+                $result->assigned_staff = [];
+            }
+            unset($result->assigned_staff_ids);
+        }
+        
+        return $result;
     }
 
     /**
@@ -101,18 +118,22 @@ class Securelogin_guard_model extends App_Model
             $data['ip_address'] = trim($data['ip_address']);
         }
         
-        // Ensure staff_id is set to null if not provided or invalid
-        if (!isset($data['staff_id']) || empty($data['staff_id']) || $data['staff_id'] === '0' || $data['staff_id'] === 0) {
-            $data['staff_id'] = null;
-        } else {
-            $data['staff_id'] = (int)$data['staff_id'];
-            if ($data['staff_id'] <= 0) {
-                $data['staff_id'] = null;
-            }
-        }
+        // Remove staff_ids from data (will be handled separately)
+        $staff_ids = isset($data['staff_ids']) ? $data['staff_ids'] : [];
+        unset($data['staff_ids']);
+        
+        // Remove staff_id from data (old column, not used anymore)
+        unset($data['staff_id']);
         
         $this->db->insert($this->table, $data);
-        return $this->db->insert_id();
+        $whitelist_id = $this->db->insert_id();
+        
+        // Add staff assignments
+        if ($whitelist_id && !empty($staff_ids) && is_array($staff_ids)) {
+            $this->assign_staff($whitelist_id, $staff_ids);
+        }
+        
+        return $whitelist_id;
     }
 
     /**
@@ -120,88 +141,150 @@ class Securelogin_guard_model extends App_Model
      */
     public function update($id, $data)
     {
+        // Remove staff_ids from data (will be handled separately)
+        $staff_ids = isset($data['staff_ids']) ? $data['staff_ids'] : [];
+        unset($data['staff_ids']);
+        
+        // Remove staff_id from data (old column, not used anymore)
+        unset($data['staff_id']);
+        
         $this->db->where('id', $id);
-        return $this->db->update($this->table, $data);
+        $success = $this->db->update($this->table, $data);
+        
+        // Update staff assignments
+        if ($success) {
+            $this->update_staff_assignments($id, $staff_ids);
+        }
+        
+        return $success;
     }
 
     /**
-     * Delete IP address
+     * Delete IP address and its staff assignments
      */
     public function delete($id)
     {
+        // Delete staff assignments first
+        $this->db->where('whitelist_id', $id);
+        $this->db->delete($this->staff_table);
+        
+        // Delete IP record
         $this->db->where('id', $id);
         return $this->db->delete($this->table);
     }
 
     /**
-     * Check if IP exists (global only - staff_id is null)
+     * Assign staff to IP whitelist
+     */
+    public function assign_staff($whitelist_id, $staff_ids)
+    {
+        if (empty($staff_ids) || !is_array($staff_ids)) {
+            return false;
+        }
+        
+        $whitelist_id = (int)$whitelist_id;
+        $insert_data = [];
+        
+        foreach ($staff_ids as $staff_id) {
+            $staff_id = (int)$staff_id;
+            if ($staff_id > 0) {
+                $insert_data[] = [
+                    'whitelist_id' => $whitelist_id,
+                    'staff_id' => $staff_id,
+                    'date_created' => date('Y-m-d H:i:s')
+                ];
+            }
+        }
+        
+        if (!empty($insert_data)) {
+            return $this->db->insert_batch($this->staff_table, $insert_data);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Update staff assignments for an IP
+     */
+    public function update_staff_assignments($whitelist_id, $staff_ids)
+    {
+        // Delete existing assignments
+        $this->db->where('whitelist_id', $whitelist_id);
+        $this->db->delete($this->staff_table);
+        
+        // Add new assignments
+        if (!empty($staff_ids) && is_array($staff_ids)) {
+            return $this->assign_staff($whitelist_id, $staff_ids);
+        }
+        
+        return true;
+    }
+
+    /**
+     * Get staff assigned to an IP
+     */
+    public function get_assigned_staff($whitelist_id)
+    {
+        $this->db->where('whitelist_id', $whitelist_id);
+        $this->db->select('staff_id');
+        $results = $this->db->get($this->staff_table)->result();
+        
+        return array_column($results, 'staff_id');
+    }
+
+    /**
+     * Check if IP exists (any staff assignment)
      */
     public function ip_exists($ip, $exclude_id = null)
     {
         $ip = trim($ip);
         $this->db->where('ip_address', $ip);
-        $this->db->group_start();
-        $this->db->where('staff_id IS NULL', null, false);
-        $this->db->or_where('staff_id', 0);
-        $this->db->group_end();
         if ($exclude_id) {
             $this->db->where('id !=', $exclude_id);
         }
         return $this->db->count_all_results($this->table) > 0;
     }
 
-    
-
     /**
-     * Check if IP exists for staff
+     * Check if IP exists for specific staff
      */
     public function ip_exists_for_staff($ip, $staff_id, $exclude_id = null)
     {
         $ip = trim($ip);
         $staff_id = (int)$staff_id;
-        $this->db->where('ip_address', $ip);
-        $this->db->where('staff_id', $staff_id);
+        
+        $this->db->where('w.ip_address', $ip);
+        $this->db->where('ws.staff_id', $staff_id);
+        $this->db->from($this->table . ' w');
+        $this->db->join($this->staff_table . ' ws', 'w.id = ws.whitelist_id', 'inner');
+        
         if ($exclude_id) {
-            $this->db->where('id !=', $exclude_id);
+            $this->db->where('w.id !=', $exclude_id);
         }
-        return $this->db->count_all_results($this->table) > 0;
+        
+        return $this->db->count_all_results() > 0;
     }
 
     /**
-     * Check if there are valid IP addresses (global or assigned to admins)
-     * Returns true if there are IPs that are either:
-     * - Global (staff_id IS NULL - for all staff), OR
-     * - Assigned to at least one admin user
+     * Get active IPs for a specific staff member
      */
-    public function has_valid_ips_for_whitelist()
+    public function get_ips_for_staff($staff_id)
     {
-        // Get all active IPs
-        $this->db->where('is_active', 1);
-        $all_ips = $this->db->get($this->table)->result();
+        $this->db->where('w.is_active', 1);
+        $this->db->where('ws.staff_id', $staff_id);
+        $this->db->select('w.*');
+        $this->db->from($this->table . ' w');
+        $this->db->join($this->staff_table . ' ws', 'w.id = ws.whitelist_id', 'inner');
+        $this->db->group_by('w.id');
         
-        if (empty($all_ips)) {
-            return false;
-        }
-        
-        // Check if any IP is global (staff_id IS NULL)
-        foreach ($all_ips as $ip) {
-            if ($ip->staff_id === null || $ip->staff_id == 0) {
-                return true; // Found global IP
-            }
-        }
-        
-        // Check if any IP is assigned to an admin
-        $staff_ids = array_filter(array_column($all_ips, 'staff_id'));
-        if (empty($staff_ids)) {
-            return false;
-        }
-        
-        // Check if any of these staff IDs are admins
-        $this->db->where_in('staffid', $staff_ids);
-        $this->db->where('admin', 1);
-        $admin_count = $this->db->count_all_results(db_prefix() . 'staff');
-        
-        return $admin_count > 0;
+        return $this->db->get()->result();
+    }
+
+    /**
+     * Check if there are any IP whitelist entries
+     */
+    public function has_any_ips()
+    {
+        return $this->db->count_all_results($this->table) > 0;
     }
 }
-

@@ -6,6 +6,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 Module Name: SecureLogin Guard - IP Whitelist
 Description: Restrict login access to specific IP addresses for enhanced security
 Version: 1.0.0
+Author: DevzoneIT
+Author URI: https://codecanyon.net/user/devzoneit
 Requires at least: 2.3.*
 */
 
@@ -101,7 +103,10 @@ function module_securelogin_guard_action_links($actions)
 /**
  * Load the module helper
  */
-$CI->load->helper(SECURELOGIN_GUARD_MODULE_NAME . '/securelogin_guard');
+$helper_path = APP_MODULES_PATH . SECURELOGIN_GUARD_MODULE_NAME . '/helpers/securelogin_guard_helper.php';
+if (file_exists($helper_path)) {
+    include_once($helper_path);
+}
 
 /**
  * Register activation module hook
@@ -121,10 +126,7 @@ function securelogin_guard_check_ip_whitelist($data)
 {
     $CI = &get_instance();
     
-    // Check if IP whitelist is enabled
-    if (get_option('securelogin_guard_enable_ip_whitelist') != '1') {
-        return; // Whitelist is disabled, allow login
-    }
+    // IP whitelist is always active (no settings needed)
     
     // Determine if this is staff or client login based on hook name or data
     $is_staff = false;
@@ -136,80 +138,85 @@ function securelogin_guard_check_ip_whitelist($data)
         $userid = $data['userid'];
     }
     
-    // Check if bypass for admin is enabled
-    if (get_option('securelogin_guard_bypass_admin') == '1' && $is_staff && $userid) {
+    // Always allow admins to login from any IP
+    if ($is_staff && $userid) {
         $CI->db->where('staffid', $userid);
         $CI->db->where('admin', 1);
         $admin_user = $CI->db->get(db_prefix() . 'staff')->row();
         if ($admin_user) {
-            return; // Bypass for admin - allow login
+            return; // Admin - always allow login
         }
+    }
+    
+    // Check if there are any IP whitelist entries
+    $CI->db->from(db_prefix() . 'securelogin_guard_whitelist');
+    $has_any_ips = $CI->db->count_all_results() > 0;
+    
+    // If no IP entries exist, allow all logins
+    if (!$has_any_ips) {
+        return; // No IPs added, allow normal login
     }
     
     $user_ip = $CI->input->ip_address();
     
-    // Check if staff_id column exists in the table
-    $columns = $CI->db->list_fields(db_prefix() . 'securelogin_guard_whitelist');
-    $has_staff_column = in_array('staff_id', $columns);
-    
-    // Get active whitelisted IPs - check both staff-specific and global (staff_id IS NULL)
-    $CI->db->where('is_active', 1);
-    if ($is_staff && $userid && $has_staff_column) {
-        // For staff, check both staff-specific and global IPs
-        $CI->db->group_start();
-        $CI->db->where('staff_id', $userid);
-        // Explicit IS NULL to avoid ambiguous NULL handling
-        $CI->db->or_where('staff_id IS NULL', null, false);
-        $CI->db->group_end();
-    } else {
-        // For clients or if staff_id column doesn't exist, only check global IPs (staff_id IS NULL)
-        if ($has_staff_column) {
-            // Explicit IS NULL to avoid ambiguous NULL handling
-            $CI->db->where('staff_id IS NULL', null, false);
+    // For staff, check if their IP is whitelisted and they are assigned to it
+    if ($is_staff && $userid) {
+        // Get active IPs assigned to this staff member
+        $CI->db->where('w.is_active', 1);
+        $CI->db->where('ws.staff_id', $userid);
+        $CI->db->select('w.*');
+        $CI->db->from(db_prefix() . 'securelogin_guard_whitelist w');
+        $CI->db->join(db_prefix() . 'securelogin_guard_whitelist_staffs ws', 'w.id = ws.whitelist_id', 'inner');
+        $CI->db->group_by('w.id');
+        $whitelist = $CI->db->get()->result();
+        
+        // If staff is not assigned to any IP, they can login from any IP
+        if (empty($whitelist)) {
+            return; // Staff not assigned to any IP, allow login from any IP
         }
-        // If staff_id column doesn't exist, check all IPs (backward compatibility)
-    }
-    $whitelist = $CI->db->get(db_prefix() . 'securelogin_guard_whitelist')->result();
-    
-    $is_whitelisted = false;
-    
-    // Check if IP matches any whitelisted entry (including CIDR)
-    foreach ($whitelist as $entry) {
-        if ($user_ip === $entry->ip_address) {
-            // Exact match
-            $is_whitelisted = true;
-            break;
-        } elseif (strpos($entry->ip_address, '/') !== false) {
-            // CIDR notation check
-            // Load helper function if not loaded
-            if (!function_exists('securelogin_guard_ip_matches')) {
-                $CI->load->helper(SECURELOGIN_GUARD_MODULE_NAME . '/securelogin_guard');
-            }
-            if (function_exists('securelogin_guard_ip_matches')) {
-                if (securelogin_guard_ip_matches($user_ip, $entry->ip_address)) {
-                    $is_whitelisted = true;
-                    break;
+        
+        $is_whitelisted = false;
+        
+        // Check if IP matches any whitelisted entry assigned to this staff (including CIDR)
+        foreach ($whitelist as $entry) {
+            if ($user_ip === $entry->ip_address) {
+                // Exact match
+                $is_whitelisted = true;
+                break;
+            } elseif (strpos($entry->ip_address, '/') !== false) {
+                // CIDR notation check
+                // Load helper function if not loaded
+                if (!function_exists('securelogin_guard_ip_matches')) {
+                    $helper_path = APP_MODULES_PATH . SECURELOGIN_GUARD_MODULE_NAME . '/helpers/securelogin_guard_helper.php';
+                    if (file_exists($helper_path)) {
+                        include_once($helper_path);
+                    }
+                }
+                if (function_exists('securelogin_guard_ip_matches')) {
+                    if (securelogin_guard_ip_matches($user_ip, $entry->ip_address)) {
+                        $is_whitelisted = true;
+                        break;
+                    }
                 }
             }
         }
-    }
-    
-    if (!$is_whitelisted) {
-        // Log the blocked attempt
-        $email = isset($data['email']) ? $data['email'] : 'N/A';
-        $user_type = $is_staff ? 'Staff' : 'Client';
-        log_activity('Login blocked - IP not whitelisted [IP: ' . $user_ip . ', Email: ' . $email . ', Type: ' . $user_type . ']');
         
-        // Set error message
-        set_alert('danger', _l('securelogin_guard_ip_not_whitelisted'));
-        
-        // Redirect to login page
-        if ($is_staff) {
+        // Staff is assigned to IP(s) but current IP doesn't match - block login
+        if (!$is_whitelisted) {
+            $email = isset($data['email']) ? $data['email'] : 'N/A';
+            log_activity('Login blocked - IP not whitelisted for staff [IP: ' . $user_ip . ', Staff ID: ' . $userid . ', Email: ' . $email . ']');
+            
+            // Set error message
+            set_alert('danger', _l('securelogin_guard_ip_not_whitelisted'));
+            
+            // Redirect to login page
             redirect(admin_url('authentication'));
-        } else {
-            redirect(site_url('authentication/login'));
+            exit;
         }
-        exit;
+    } else {
+        // For clients, IP whitelist doesn't apply (only staff)
+        // Allow client login
+        return;
     }
 }
 

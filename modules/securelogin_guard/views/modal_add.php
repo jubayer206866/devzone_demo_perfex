@@ -25,22 +25,22 @@
     </small>
 </div>
 
-<?php if ($is_admin && !empty($staff_members)): ?>
-<div class="form-group">
+<?php if ($has_create_permission && !empty($staff_members)): ?>
     <?php
     // Add "All Staff" option at the beginning
-    $staff_options = [['staffid' => '', 'firstname' => _l('all_staff'), 'lastname' => '']];
+    $staff_options = array();
     foreach ($staff_members as $staff) {
         $staff_options[] = $staff;
     }
     
+    $staff_label = _l('assign_to_staff', '', false) . ' <span class="text-danger">*</span>';
     echo render_select(
-        'staff_id',
+        'staff_ids[]',
         $staff_options,
         ['staffid', ['firstname', 'lastname']],
-        'assign_to_staff',
+        $staff_label,
         '',
-        ['data-none-selected-text' => _l('all_staff'), 'class' => 'selectpicker'],
+        ['data-none-selected-text' => _l('select_staff'), 'class' => 'selectpicker', 'multiple' => true, 'required' => true],
         [],
         'selectpicker',
         '',
@@ -48,11 +48,10 @@
     );
     ?>
     <small class="form-text text-muted">
-        <?php echo _l('assign_to_staff'); ?> - <?php echo _l('all_staff'); ?> for global IP whitelist
+        <?php echo _l('assign_to_staff'); ?> - Select one or more staff members. Admins are always allowed to login from any IP.
     </small>
-</div>
 <?php else: ?>
-<input type="hidden" name="staff_id" value="<?php echo get_staff_user_id(); ?>" />
+<input type="hidden" name="staff_ids[]" value="<?php echo get_staff_user_id(); ?>" />
 <?php endif; ?>
 
 <div class="form-group">
@@ -63,4 +62,3 @@
 </div>
 
 <?php echo form_close(); ?>
-

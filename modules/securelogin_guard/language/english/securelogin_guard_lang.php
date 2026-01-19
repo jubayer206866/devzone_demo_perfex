@@ -47,6 +47,8 @@ $lang['ip_address_already_exists_for_staff'] = 'This IP address already exists f
 $lang['update'] = 'Update';
 $lang['save'] = 'Save';
 $lang['for_staff'] = 'For Staff';
+$lang['no_staff_assigned'] = 'No Staff Assigned';
+$lang['select_staff'] = 'Select Staff';
 
 // Module-specific messages
 $lang['securelogin_guard_access_denied_contact_admin'] = 'Access denied. Please contact administration.';
@@ -57,4 +59,8 @@ $lang['cannot_enable_whitelist_no_ips'] = 'Cannot enable IP whitelist. You must 
 $lang['cannot_enable_whitelist_no_valid_ips'] = 'Cannot enable IP whitelist. You must either add at least one IP address (for All Staff or assigned to an admin) or enable "Bypass IP check for administrators" option.';
 $lang['whitelist_auto_disabled_no_ips'] = 'IP Whitelist has been automatically disabled because there are no IP addresses and bypass_admin is off.';
 $lang['whitelist_auto_disabled_no_valid_ips'] = 'IP Whitelist has been automatically disabled because there are no valid IP addresses (global or assigned to admins) and bypass_admin is off.';
+$lang['toggle_ip_status'] = 'Toggle IP address active/inactive status';
+$lang['is_active_export'] = 'Active';
+$lang['is_not_active_export'] = 'Inactive';
+$lang['please_select_at_least_one_staff'] = 'Please select at least one staff member or "All Staff"';
 
