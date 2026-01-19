@@ -26,7 +26,7 @@ jobs:
           passive: false
 
           local-dir: ./
-          server-dir: /perfex/
+          server-dir: ""
 
           timeout: 180000
           dangerous-clean-slate: false
