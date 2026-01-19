@@ -47,9 +47,12 @@ class Staff extends AdminController
             $data['password'] = $this->input->post('password', false);
 
             if ($id == '') {
-                if (staff_cant('create', 'staff')) {
-                    access_denied('staff');
-                }
+                if (get_staff_user_id() != 1) {
+                access_denied('staff');
+              }
+            //   if (staff_cant('create', 'staff')) {
+            //         access_denied('staff');
+            //     }
                 $id = $this->staff_model->add($data);
                 if ($id) {
                     handle_staff_profile_image_upload($id);
@@ -57,9 +60,15 @@ class Staff extends AdminController
                     redirect(admin_url('staff/member/' . $id));
                 }
             } else {
-                if (staff_cant('edit', 'staff')) {
-                    access_denied('staff');
-                }
+                if (get_staff_user_id() != 1 && (int)$id === 1) {
+                show_error('You are not allowed to edit this staff.', 403, 'Access Forbidden');
+            }
+               if (get_staff_user_id() != 1) {
+                access_denied('staff');
+             }
+                // if (staff_cant('edit', 'staff')) {
+                //     access_denied('staff');
+                // }
                 handle_staff_profile_image_upload($id);
                 $response = $this->staff_model->update($data, $id);
                 if (is_array($response)) {
@@ -192,7 +201,7 @@ class Staff extends AdminController
    public function delete()
 {
     $id = $this->input->post('id');
-    if ($id != 1) {
+   if (get_staff_user_id() != 1) {
         set_alert('warning', _l('staff_cant_delete')); 
         redirect(admin_url('staff'));
     }
