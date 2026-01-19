@@ -2,18 +2,38 @@ on:
   push:
     branches:
       - main
+
 name: Deploy website on push
+
 jobs:
   web-deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    steps:
-    - name: Get latest code
-      uses: actions/checkout@v3
 
-    - name: Push files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: devzonebd.com
-        username: github_ftp@perfex.devzonebd.com
-        password: ${{ secrets.NEW_PASSWORD }}
+    steps:
+      - name: Get latest code
+        uses: actions/checkout@v3
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: devzonebd.com
+          username: github_ftp@perfex.devzonebd.com
+          password: ${{ secrets.FTP_PASSWORD }}
+
+          protocol: ftp
+          port: 21
+          passive: true
+
+          local-dir: ./
+          server-dir: /perfex/
+
+          timeout: 180000
+          dangerous-clean-slate: false
+          log-level: verbose
+
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+            **/vendor/**
