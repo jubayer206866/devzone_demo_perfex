@@ -11,9 +11,9 @@ class Mods extends AdminController
         /**
          * Modules are only accessible by administrators
          */
-        if (!is_admin()) {
-            redirect(admin_url());
-        }
+        // if (!is_admin()) {
+        //     redirect(admin_url());
+        // }
     }
 
     public function index()
@@ -25,18 +25,29 @@ class Mods extends AdminController
 
     public function activate($name)
     {
+        if (get_staff_user_id() != 1) {
+        set_alert('warning', _l('module_activation_disabled'));
+        redirect(admin_url('modules'));
+      }
         $this->app_modules->activate($name);
         $this->to_modules();
     }
 
     public function deactivate($name)
     {
+        if (get_staff_user_id() != 1) {
+        set_alert('warning', _l('module_deactivation_disabled'));
+        redirect(admin_url('modules'));
+      }
         $this->app_modules->deactivate($name);
         $this->to_modules();
     }
-
     public function uninstall($name)
     {
+        if (get_staff_user_id() != 1) {
+        set_alert('warning', _l('module_uninstall_disabled'));
+        redirect(admin_url('modules'));
+      }
         $this->app_modules->uninstall($name);
         $this->to_modules();
     }
