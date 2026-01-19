@@ -15,5 +15,5 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: devzonebd.com
-        username: ftp_perfex@perfex.devzonebd.com
-        password: ${{ secrets.PASSWORD }}
+        username: github_ftp@perfex.devzonebd.com
+        password: ${{ secrets.NEW_PASSWORD }}
