@@ -22,8 +22,8 @@ jobs:
           password: ${{ secrets.NEW_PASSWORD }}
 
           protocol: ftp
-          port: 21
-          passive: true
+          port: 22
+          passive: false
 
           local-dir: ./
           server-dir: /perfex/
