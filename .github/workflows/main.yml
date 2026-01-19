@@ -7,33 +7,23 @@ name: Deploy website on push
 
 jobs:
   web-deploy:
-    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get latest code
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Deploy via SFTP
         uses: appleboy/scp-action@v0.1.5
         with:
-          server: devzonebd.com
+          host: devzonebd.com
           username: github_ftp@perfex.devzonebd.com
-          password: ${{ secrets.NEW_PASSWORD }}
-
-          protocol: sftp
+          password: ${{ secrets.NEW_PASSWORD }} # required
           port: 22
-          passive: false
 
-          local-dir: "./"
-          server-dir: "/"
+          source: "./"     # local folder to upload
+          target: "/"      # remote folder (root of your subdomain)
 
-          timeout: 180m
-          dangerous-clean-slate: false
-          log-level: verbose
-
-          exclude: |
-            **/.git*
-            **/.github*
-            **/node_modules/**
-            **/vendor/**
+          strip_components: 0
+          overwrite: true
+          command_timeout: 100m
