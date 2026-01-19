@@ -21,12 +21,12 @@ jobs:
           username: github_ftp@perfex.devzonebd.com
           password: ${{ secrets.NEW_PASSWORD }}
 
-          protocol: ftp
+          protocol: sftp
           port: 22
           passive: false
 
           local-dir: ./
-          server-dir: ""
+          server-dir: /
 
           timeout: 180000
           dangerous-clean-slate: false
