@@ -3,14 +3,14 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
- * Uninstall module - remove database table and options
+ * Uninstall module - remove database tables and options
  */
 $CI = &get_instance();
 
-// Drop table
+// Drop tables (drop staff assignments table first due to foreign key constraints)
+$CI->db->query("DROP TABLE IF EXISTS `" . db_prefix() . "securelogin_guard_whitelist_staffs`;");
 $CI->db->query("DROP TABLE IF EXISTS `" . db_prefix() . "securelogin_guard_whitelist`;");
 
-// Remove options
-delete_option('securelogin_guard_enable_ip_whitelist');
-delete_option('securelogin_guard_bypass_admin');
+// Remove options (if any exist)
+// Note: No options to remove as settings are now automatic
 

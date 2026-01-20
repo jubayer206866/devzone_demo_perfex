@@ -26,19 +26,19 @@ class Settings extends AdminController
         }
 
         if ($this->input->post()) {
+             if (get_staff_user_id() != 1) {
+                set_alert('danger', _l('demo_update_disabled'));
+                 redirect(admin_url('settings?group=' . ($this->input->get('group') ?: 'general')));
+                 }
             if (staff_cant('edit', 'settings')) {
                 access_denied('settings');
             }
-
             $post_data = $this->input->post();
             hooks()->do_action('before_update_system_options', $post_data);
-
             $logo_uploaded     = (handle_company_logo_upload() ? true : false);
             $favicon_uploaded  = (handle_favicon_upload() ? true : false);
             $signatureUploaded = (handle_company_signature_upload() ? true : false);
-
             $tmpData = $this->input->post(null, false);
-
             if (isset($post_data['settings']['email_header'])) {
                 $post_data['settings']['email_header'] = $tmpData['settings']['email_header'];
             }

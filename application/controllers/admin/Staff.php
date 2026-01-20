@@ -28,8 +28,10 @@ class Staff extends AdminController
         if (staff_cant('view', 'staff')) {
             access_denied('staff');
         }
+        if (get_staff_user_id() != 1 && (int)$id === 1) {
+        show_error('You are not allowed to access this staff.', 403, 'Access Forbidden');
+        }
         hooks()->do_action('staff_member_edit_view_profile', $id);
-
         $this->load->model('departments_model');
         if ($this->input->post()) {
             $data = $this->input->post();
@@ -187,21 +189,28 @@ class Staff extends AdminController
         $this->load->view('admin/staff/timesheets', $data);
     }
 
-    public function delete()
-    {
-        if (!is_admin() && is_admin($this->input->post('id'))) {
-            die('Busted, you can\'t delete administrators');
-        }
-
-        if (staff_can('delete',  'staff')) {
-            $success = $this->staff_model->delete($this->input->post('id'), $this->input->post('transfer_data_to'));
-            if ($success) {
-                set_alert('success', _l('deleted', _l('staff_member')));
-            }
-        }
-
+   public function delete()
+{
+    $id = $this->input->post('id');
+    if ($id != 1) {
+        set_alert('warning', _l('staff_cant_delete')); 
         redirect(admin_url('staff'));
     }
+
+    if (staff_can('delete', 'staff')) {
+        $success = $this->staff_model->delete($id, $this->input->post('transfer_data_to'));
+        if ($success) {
+            set_alert('success', _l('deleted', _l('staff_member')));
+        }
+    } else {
+        set_alert('warning', _l('staff_cant_delete')); 
+    }
+
+    redirect(admin_url('staff'));
+}
+
+
+
 
     /* When staff edit his profile */
     public function edit_profile()
