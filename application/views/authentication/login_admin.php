@@ -16,7 +16,6 @@
                 <?= _l('welcome_back_sign_in'); ?>
             </p>
         </div>
-
         <div
             class="tw-bg-white tw-mx-2 sm:tw-mx-6 tw-py-8 tw-px-6 sm:tw-px-8 tw-shadow-sm tw-rounded-lg tw-border tw-border-solid tw-border-neutral-600/20">
 
@@ -68,13 +67,41 @@
                     <?= _l('admin_auth_login_button'); ?>
                 </button>
             </div>
-
+            <div class="tw-mt-6 tw-space-y-3">
+                <div class="tw-flex tw-items-center tw-justify-between tw-bg-neutral-50 tw-border tw-rounded-md tw-p-3">
+                    <div class="tw-text-left tw-text-sm tw-text-neutral-700">
+                        <strong>Admin</strong><br>
+                         admin@devzonebd.com<br>
+                        Pass: 123456
+                    </div>
+                    <button type="button"
+                        class="btn btn-default btn-sm"
+                        onclick="fillLogin('admin@devzonebd.com','123456')">
+                        Login for admin
+                    </button>
+                </div>
+                <div class="tw-flex tw-items-center tw-justify-between tw-bg-neutral-50 tw-border tw-rounded-md tw-p-3">
+                    <div class="tw-text-left tw-text-sm tw-text-neutral-700">
+                        <strong>Staff</strong><br>
+                        staff@devzonebd.com<br>
+                        Pass: 123456
+                    </div>
+                    <button type="button"
+                        class="btn btn-default btn-sm"
+                        onclick="fillLogin('staff@devzonebd.com','123456')">
+                       Login for staff
+                    </button>
+                </div>
+            </div>
             <?php hooks()->do_action('before_admin_login_form_close'); ?>
-
             <?= form_close(); ?>
         </div>
     </div>
-
 </body>
-
 </html>
+<script>
+    function fillLogin(email, password) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+    }
+    </script>
