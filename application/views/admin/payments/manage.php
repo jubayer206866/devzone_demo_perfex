@@ -2,7 +2,7 @@
 <?php init_head(); ?>
 <div id="wrapper">
     <div class="content">
-        <div class="panel_s">
+        <div class="paenl_s">
             <div class="panel-body">
                 <div class="panel-table-full">
                     <?php $this->load->view('admin/payments/table_html'); ?>

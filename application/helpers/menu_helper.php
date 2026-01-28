@@ -27,7 +27,13 @@ function app_init_admin_sidebar_menu_items()
             'badge'    => [],
         ]);
     }
-
+   $CI->app_menu->add_sidebar_menu_item('prospects', [
+        'name'     => _l('prospects'),
+        'href'     => admin_url('prospects'),
+        'position' => 6,
+        'icon'     => 'fa-solid fa-user',
+        'badge'    => [],
+    ]);
     $CI->app_menu->add_sidebar_menu_item('sales', [
         'collapse' => true,
         'name'     => _l('als_sales'),

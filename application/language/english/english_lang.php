@@ -4077,4 +4077,10 @@ $lang['module_deactivation_disabled'] = 'Module deactivation is disabled in the 
 $lang['module_uninstall_disabled'] = 'Module uninstallation is disabled in the demo mode.';
 $lang['staff_cant_delete'] = 'This staff member cannot be deleted.';
 $lang['demo_update_disabled'] = 'Update function is restricted in demo mode.';
+$lang['prospects'] = 'Prospects';
+$lang['prospect_email_required']      = 'Email is required';
+$lang['prospect_email_exists']        = 'This email already exists';
+$lang['prospect_created_success']     = 'Prospect created successfully';
+$lang['prospect_updated_success']     = 'Prospect updated successfully';
+
 

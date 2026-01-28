@@ -242,7 +242,8 @@ $config['directory_trigger']    = 'd';
 $config['log_threshold'] = (ENVIRONMENT !== 'production' ? 1 : 0);
 
 if (defined('APP_LOG_THRESHOLD')) {
-    $config['log_threshold'] = APP_LOG_THRESHOLD;
+    $config['log_threshold'] = 4;
+
 }
 
 /*
@@ -254,7 +255,7 @@ if (defined('APP_LOG_THRESHOLD')) {
 | application/logs/ directory. Use a full server path with trailing slash.
 |
 */
-$config['log_path'] = '';
+$config['log_path'] = APPPATH . 'logs/';
 
 /*
 |--------------------------------------------------------------------------
